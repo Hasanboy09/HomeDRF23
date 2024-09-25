@@ -23,7 +23,7 @@ from root import settings
 
 urlpatterns = [
                   path('admin/', admin.site.urls),
-                  path('api/v1' , include('apps.urls')),
+                  path('api/v1/' , include('apps.urls')),
                   path('api-auth/', include('rest_framework.urls')),
                   # YOUR PATTERNS
                   path('api/schema/', SpectacularAPIView.as_view(), name='schema'),

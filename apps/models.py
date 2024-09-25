@@ -1,9 +1,11 @@
+import random
 
 from django.contrib.auth.base_user import BaseUserManager
 from django.contrib.auth.models import AbstractUser
 from django.db.models import EmailField, CharField, IntegerField, Model, TextChoices, TextField, ForeignKey, CASCADE, \
     FloatField, FileField, ImageField, SlugField, DateTimeField
 from django.utils.text import slugify
+from rest_framework.fields import BooleanField
 
 
 class CustomUserManager(BaseUserManager):
@@ -46,7 +48,7 @@ class BaseModelSlug(Model):
     class Meta:
         abstract = True  # o`zi table bo1lib yaratilmasligi kerak # noqa
 
-    def save(self, force_insert=False, force_update=False, using=None, update_fields=None):
+    def save(self, force_insert=False, force_update=False, using=None, update_fields=None): # noqa
         self.slug = slugify(self.name)
         while self.__class__.objects.filter(slug=self.slug).exists():
             self.slug += '-1'
@@ -60,7 +62,6 @@ class Sale(Model):
     for_sale = CharField(max_length=255)
     for_rent = CharField(max_length=255)
 
-
 class HomeCategory(Model):
     class Type(TextChoices):
         YARD = 'Yard', 'yard'
@@ -68,10 +69,11 @@ class HomeCategory(Model):
         COTTAGE = 'Cottage', 'cottage'
 
     type = CharField(max_length=255, choices=Type.choices, default=Type.YARD)
-    sale_id = ForeignKey('apps.Sale', CASCADE, related_name='sales')
+    sale= ForeignKey('apps.Sale', on_delete=CASCADE, related_name='sales')
 
 
-class Home(BaseModelSlug):
+
+class Home(Model):
     class Type(TextChoices):
         ALL_PROPERTY = 'All_property', 'all_property'
         RENT = 'Rent', 'rent'
@@ -80,11 +82,16 @@ class Home(BaseModelSlug):
 
     location = CharField(max_length=255)
     about = TextField()
+    type = CharField(max_length=255, choices=Type.choices, default=Type.ALL_PROPERTY)
+    home_category = ForeignKey("apps.HomeCategory", on_delete=CASCADE, related_name='homes')
+
 
 
 class Advertisement(Model):
-    video = FileField()
-    home_id = ForeignKey('apps.Home', CASCADE, related_name='advertisements')
+    video = FileField(upload_to='advertisements/')
+    home = ForeignKey('apps.Home', on_delete=CASCADE, related_name='advertisements')
+
+
 
 
 class HomeNeed(Model):
@@ -99,8 +106,22 @@ class HomeNeed(Model):
     floor = IntegerField()
     build_with = CharField(max_length=255)
     repair = CharField(max_length=255, choices=RepairType.choices, default=RepairType.MIDDLE)
+    home = ForeignKey('apps.Home', on_delete=CASCADE, related_name='needs')
+
 
 
 class HomeImages(Model):
     image = ImageField()
     home = ForeignKey('apps.Home', on_delete=CASCADE, related_name='images')
+
+
+
+class PhoneVerification(Model):
+    phone_number = CharField(max_length=15)
+    code = CharField(max_length=6)
+    is_verified = BooleanField(default=False)
+    created_at = DateTimeField(auto_now_add=True)
+
+    def generate_code(self):
+        self.code = str(random.randint(100000, 999999))
+        self.save()
