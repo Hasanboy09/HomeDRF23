@@ -7,6 +7,14 @@ from django.db.models import EmailField, CharField, IntegerField, Model, TextCho
 from django.utils.text import slugify
 from rest_framework.fields import BooleanField
 
+class Region(Model):
+    name = CharField(max_length=50)
+
+
+class District(Model):
+    name = CharField(max_length=50)
+    region = ForeignKey('apps.Region', CASCADE)
+
 
 class CustomUserManager(BaseUserManager):
     def create_user(self, email, password=None, **extra_fields):
@@ -33,7 +41,9 @@ class User(AbstractUser):
     email = EmailField(unique=True)
     organization = CharField(max_length=255, blank=True, null=True)
     phone_number = CharField(max_length=255)
-    balance = IntegerField()
+    balance = IntegerField(null=True , default=0 , blank=True )
+    district = ForeignKey('apps.District', on_delete=CASCADE, related_name='users' , null=True , blank=True )
+    image = ImageField(upload_to='users')
 
     def __str__(self):
         return self.first_name
@@ -87,13 +97,6 @@ class Home(Model):
 
 
 
-class Advertisement(Model):
-    video = FileField(upload_to='advertisements/')
-    home = ForeignKey('apps.Home', on_delete=CASCADE, related_name='advertisements')
-
-
-
-
 class HomeNeed(Model):
     class RepairType(TextChoices):
         MIDDLE = 'Middle', 'middle'
@@ -107,6 +110,17 @@ class HomeNeed(Model):
     build_with = CharField(max_length=255)
     repair = CharField(max_length=255, choices=RepairType.choices, default=RepairType.MIDDLE)
     home = ForeignKey('apps.Home', on_delete=CASCADE, related_name='needs')
+
+
+
+
+class Advertisement(Model):
+    video = FileField(upload_to='advertisements/')
+    home = ForeignKey('apps.Home', on_delete=CASCADE, related_name='advertisements')
+
+
+
+
 
 
 
@@ -125,3 +139,5 @@ class PhoneVerification(Model):
     def generate_code(self):
         self.code = str(random.randint(100000, 999999))
         self.save()
+
+

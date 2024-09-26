@@ -1,6 +1,6 @@
 from rest_framework.serializers import ModelSerializer
 
-from apps.models import Sale, HomeCategory, Home, Advertisement, HomeNeed, HomeImages, PhoneVerification
+from apps.models import Sale, HomeCategory, Home, Advertisement, HomeNeed, HomeImages, PhoneVerification, User
 from apps.utils import send_sms
 
 
@@ -16,21 +16,9 @@ class HomeCategorySerializer(ModelSerializer):
         fields = '__all__'
 
 
-class HomeSerializer(ModelSerializer):
-    class Meta:
-        model = Home
-        fields = '__all__'
-
-
 class HomeNeedSerializer(ModelSerializer):
     class Meta:
         model = HomeNeed
-        fields = ['room_count', 'length', 'price', 'floor', 'build_with', 'repair']
-
-
-class AdvertisementSerializer(ModelSerializer):
-    class Meta:
-        model = Advertisement
         fields = '__all__'
 
 
@@ -38,6 +26,26 @@ class HomeImagesSerializer(ModelSerializer):
     class Meta:
         model = HomeImages
         fields = ['image', 'home']
+
+
+class HomeSerializer(ModelSerializer):
+    home_category = HomeCategorySerializer(read_only=True)
+    needs = HomeNeedSerializer(many=True, read_only=True)
+    images = HomeImagesSerializer(many=True, read_only=True)
+
+    class Meta:
+        model = Home
+        fields = ['id', 'location', 'about', 'type', 'home_category', 'needs','images']
+
+    def to_representation(self, instance):
+        representation = super().to_representation(instance)
+        return representation
+
+
+class AdvertisementSerializer(ModelSerializer):
+    class Meta:
+        model = Advertisement
+        fields = '__all__'
 
 
 class PhoneVerificationSerializer(ModelSerializer):
@@ -51,3 +59,9 @@ class PhoneVerificationSerializer(ModelSerializer):
         verification.generate_code()
         send_sms(phone_number, verification.code)
         return verification
+
+
+class UserSerializer(ModelSerializer):
+    class Meta:
+        model = User
+        fields = 'image', 'first_name', 'last_name', 'email'

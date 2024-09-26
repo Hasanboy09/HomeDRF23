@@ -11,6 +11,3 @@ def sale():
 def home_category(sale):
     HomeCategory.objects.create(type='Yard' , sale_id=sale)
 
-@pytest.fixture
-def home():
-    pass

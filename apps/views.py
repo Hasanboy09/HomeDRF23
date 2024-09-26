@@ -1,13 +1,13 @@
-# Create your views here.
 from drf_spectacular.utils import extend_schema
-from rest_framework import status
-from rest_framework.generics import CreateAPIView, RetrieveUpdateDestroyAPIView
+from rest_framework import status, permissions
+from rest_framework.generics import CreateAPIView, RetrieveUpdateDestroyAPIView, RetrieveUpdateAPIView, ListAPIView, \
+    ListCreateAPIView
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from apps.models import Sale, HomeCategory, Home, Advertisement, HomeNeed, HomeImages, PhoneVerification
+from apps.models import Sale, HomeCategory, Home, Advertisement, HomeNeed, HomeImages, PhoneVerification, User
 from apps.serializers import SaleSerializer, HomeCategorySerializer, HomeSerializer, AdvertisementSerializer, \
-    HomeNeedSerializer, HomeImagesSerializer, PhoneVerificationSerializer
+    HomeNeedSerializer, HomeImagesSerializer, PhoneVerificationSerializer, UserSerializer
 
 
 @extend_schema(tags=['sale'])
@@ -35,9 +35,10 @@ class HomeCategoryRetrieveUpdateDestroyAPIView(RetrieveUpdateDestroyAPIView):
 
 
 @extend_schema(tags=['home'])
-class HomeCreateApiView(CreateAPIView):
+class HomeCreateApiView(ListCreateAPIView):
     queryset = Home.objects.all()
     serializer_class = HomeSerializer
+
 
 
 
@@ -76,11 +77,11 @@ class HomeImageCreateApiView(CreateAPIView):
     queryset = HomeImages.objects.all()
     serializer_class = HomeImagesSerializer
 
+
 @extend_schema(tags=['homeimages'])
 class HomeImageRetrieveUpdateDestroyAPIView(RetrieveUpdateDestroyAPIView):
     queryset = HomeImages.objects.all()
     serializer_class = HomeImagesSerializer
-
 
 
 class PhoneVerificationView(APIView):
@@ -106,19 +107,38 @@ class VerifyCodeView(APIView):
             return Response({'error': 'Invalid code'}, status=status.HTTP_400_BAD_REQUEST)
 
 
-class FilteredHomeAPIView(APIView):
+# @extend_schema(tags=['filter'])
+# class FilteredHomeAPIView(APIView):
+#
+#     def get(self, request, *args, **kwargs):
+#         home_type = request.query_params.get('type', None)
+#         location = request.query_params.get('location', None)
+#
+#         homes = Home.objects.all()
+#
+#         if home_type:
+#             homes = homes.filter(type=home_type)
+#
+#         if location:
+#             homes = homes.filter(location=location)
+#
+#         serializer = HomeSerializer(homes, many=True)
+#         return Response(serializer.data)
 
-    def get(self, request, *args, **kwargs):
-        home_type = request.query_params.get('type', None)
-        location = request.query_params.get('location', None)
 
-        homes = Home.objects.all()
+@extend_schema(tags=['profile-update'])
+class UserUpdateAPIView(RetrieveUpdateAPIView):
+    queryset = User.objects.all()
+    serializer_class = UserSerializer
+    permission_classes = (permissions.AllowAny,)
 
-        if home_type:
-            homes = homes.filter(type=home_type)
 
-        if location:
-            homes = homes.filter(location=location)
+@extend_schema(tags=['filter-home'])
+class HomeFilterListView(ListCreateAPIView):
+    serializer_class = HomeSerializer
 
-        serializer = HomeSerializer(homes, many=True)
-        return Response(serializer.data)
+    def get_queryset(self):
+        location = self.request.query_params.get('location', None)
+        if location is not None:
+            return Home.objects.filter(location__iexact=location)
+        return Home.objects.all()

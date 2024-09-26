@@ -12,6 +12,7 @@ urlpatterns = [
 
     path('home', HomeCreateApiView.as_view(), name='home-create'),
     path('home/<int:pk>', HomeRetrieveUpdateDestroyAPIView.as_view(), name='home-retrieve-update'),
+    path('home' , HomeCreateApiView.as_view(), name='home-list'),
 
     path('advertisement', AdvertisementCreateApiView.as_view(), name='advertisement-create'),
     path('advertisement/<int:pk>', AdvertisementRetrieveUpdateDestroyAPIView.as_view(),
@@ -27,6 +28,9 @@ urlpatterns = [
 urlpatterns += [
     path('verify-phone/', PhoneVerificationView.as_view(), name='verify_phone'),
     path('verify-code/', VerifyCodeView.as_view(), name='verify_code'),
-    path('filtered-homes/', FilteredHomeAPIView.as_view(), name='filtered-home-list'),
+    path('homes/', HomeFilterListView.as_view(), name='filter-home-list'),
+]
 
+urlpatterns += [
+    path('user-profile/<int:pk>', UserUpdateAPIView.as_view(), name='user-profile-update'),
 ]
