@@ -28,7 +28,7 @@ urlpatterns = [
 urlpatterns += [
     path('verify-phone/', PhoneVerificationView.as_view(), name='verify_phone'),
     path('verify-code/', VerifyCodeView.as_view(), name='verify_code'),
-    path('homes/', HomeFilterListView.as_view(), name='filter-home-list'),
+    path('filter-homes/', HomeFilterListView.as_view(), name='filter-home-list'),
 ]
 
 urlpatterns += [
