@@ -1,11 +1,9 @@
-import random
-
 from django.contrib.auth.base_user import BaseUserManager
 from django.contrib.auth.models import AbstractUser
 from django.db.models import EmailField, CharField, IntegerField, Model, TextChoices, TextField, ForeignKey, CASCADE, \
-    FloatField, FileField, ImageField, SlugField, DateTimeField
+    FloatField, FileField, ImageField, SlugField, DateTimeField, ManyToManyField
 from django.utils.text import slugify
-from rest_framework.fields import BooleanField
+
 
 class Region(Model):
     name = CharField(max_length=50)
@@ -13,7 +11,7 @@ class Region(Model):
 
 class District(Model):
     name = CharField(max_length=50)
-    region = ForeignKey('apps.Region', CASCADE)
+    region = ForeignKey('apps.Region', CASCADE, related_name='districts')
 
 
 class CustomUserManager(BaseUserManager):
@@ -41,8 +39,8 @@ class User(AbstractUser):
     email = EmailField(unique=True)
     organization = CharField(max_length=255, blank=True, null=True)
     phone_number = CharField(max_length=255)
-    balance = IntegerField(null=True , default=0 , blank=True )
-    district = ForeignKey('apps.District', on_delete=CASCADE, related_name='users' , null=True , blank=True )
+    balance = IntegerField(null=True, default=0, blank=True)
+    district = ForeignKey('apps.District', on_delete=CASCADE, related_name='users', null=True, blank=True)
     image = ImageField(upload_to='users')
 
     def __str__(self):
@@ -58,7 +56,7 @@ class BaseModelSlug(Model):
     class Meta:
         abstract = True  # o`zi table bo1lib yaratilmasligi kerak # noqa
 
-    def save(self, force_insert=False, force_update=False, using=None, update_fields=None): # noqa
+    def save(self, force_insert=False, force_update=False, using=None, update_fields=None):  # noqa
         self.slug = slugify(self.name)
         while self.__class__.objects.filter(slug=self.slug).exists():
             self.slug += '-1'
@@ -68,10 +66,6 @@ class BaseModelSlug(Model):
         return self.name
 
 
-class Sale(Model):
-    for_sale = CharField(max_length=255)
-    for_rent = CharField(max_length=255)
-
 class HomeCategory(Model):
     class Type(TextChoices):
         YARD = 'Yard', 'yard'
@@ -79,8 +73,6 @@ class HomeCategory(Model):
         COTTAGE = 'Cottage', 'cottage'
 
     type = CharField(max_length=255, choices=Type.choices, default=Type.YARD)
-    sale= ForeignKey('apps.Sale', on_delete=CASCADE, related_name='sales')
-
 
 
 class Home(Model):
@@ -90,11 +82,21 @@ class Home(Model):
         HOME = 'Home', 'home'
         BUSINESS = 'Business', 'business'
 
+    class Status(TextChoices):
+        FOR_SALE = 'For Sale', 'for_sale'
+        FOR_RENT = 'For Rent', 'for_rent'
+
     location = CharField(max_length=255)
     about = TextField()
     type = CharField(max_length=255, choices=Type.choices, default=Type.ALL_PROPERTY)
     home_category = ForeignKey("apps.HomeCategory", on_delete=CASCADE, related_name='homes')
+    district = ForeignKey("apps.District", on_delete=CASCADE, related_name='homes')
+    status = CharField(max_length=50, choices=Status.choices, default=Status.FOR_SALE)
 
+
+class HomeImages(Model):
+    image = ImageField()
+    home = ForeignKey('apps.Home', on_delete=CASCADE, related_name='images')
 
 
 class HomeNeed(Model):
@@ -112,32 +114,6 @@ class HomeNeed(Model):
     home = ForeignKey('apps.Home', on_delete=CASCADE, related_name='needs')
 
 
-
-
 class Advertisement(Model):
     video = FileField(upload_to='advertisements/')
     home = ForeignKey('apps.Home', on_delete=CASCADE, related_name='advertisements')
-
-
-
-
-
-
-
-class HomeImages(Model):
-    image = ImageField()
-    home = ForeignKey('apps.Home', on_delete=CASCADE, related_name='images')
-
-
-
-class PhoneVerification(Model):
-    phone_number = CharField(max_length=15)
-    code = CharField(max_length=6)
-    is_verified = BooleanField(default=False)
-    created_at = DateTimeField(auto_now_add=True)
-
-    def generate_code(self):
-        self.code = str(random.randint(100000, 999999))
-        self.save()
-
-

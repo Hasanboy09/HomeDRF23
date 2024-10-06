@@ -1,36 +1,30 @@
-from django.urls import path
+from django.urls import include, path
+from rest_framework.routers import DefaultRouter
+from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 
-from apps.views import *
+from apps.views import HomeCategoryViewSet, HomeViewSet, HomeImageViewSet, HomeNeedViewSet, AdvertisementViewSet, \
+    UserProfileUpdateView, DistrictListView, RegionListView, RegisterView, HomeListAPIView
+
+router = DefaultRouter()
+router.register('home-categories', HomeCategoryViewSet, basename='home-categories')
+router.register('homes', HomeViewSet, basename='homes')
+router.register('home-images', HomeImageViewSet, basename='home-images')
+router.register('home-needs', HomeNeedViewSet, basename='home-needs')
+router.register('advertisements', AdvertisementViewSet, basename='advertisements')
 
 urlpatterns = [
-    path('sale', SaleCreateApiView.as_view(), name='sale-create'),
-    path('sale/<int:pk>', SaleRetrieveUpdateDestroyAPIView.as_view(), name='sale-retrieve-update'),
+    path('api/v1/', include(router.urls)),
+    path('users/<int:pk>/profile/', UserProfileUpdateView.as_view(), name='user-profile-update'),
 
-    path('homecategory', HomeCategoryCreateApiView.as_view(), name='home-category-create'),
-    path('homecategory/<int:pk>', HomeCategoryRetrieveUpdateDestroyAPIView.as_view(),
-         name='home-category-retrieve-update'),
-
-    path('home', HomeCreateApiView.as_view(), name='home-create'),
-    path('home/<int:pk>', HomeRetrieveUpdateDestroyAPIView.as_view(), name='home-retrieve-update'),
-    path('home' , HomeCreateApiView.as_view(), name='home-list'),
-
-    path('advertisement', AdvertisementCreateApiView.as_view(), name='advertisement-create'),
-    path('advertisement/<int:pk>', AdvertisementRetrieveUpdateDestroyAPIView.as_view(),
-         name='advertisement-retrieve-update'),
-
-    path('homeneed', HomeNeededCreateApiView.as_view(), name='home-needed-create'),
-    path('homeneed/<int:pk>', HomeNeedRetrieveUpdateDestroyAPIView.as_view(), name='home-needed-retrieve-update'),
-
-    path('homeimage', HomeImageCreateApiView.as_view(), name='home-image-create'),
-    path('homeimage/<int:pk>', HomeImageRetrieveUpdateDestroyAPIView.as_view(), name='home-image-retrieve-update'),
+    path('district', DistrictListView.as_view(), name='district-list'),
+    path('regions', RegionListView.as_view(), name='region-list'),
 ]
 
 urlpatterns += [
-    path('verify-phone/', PhoneVerificationView.as_view(), name='verify_phone'),
-    path('verify-code/', VerifyCodeView.as_view(), name='verify_code'),
-    path('filter-homes/', HomeFilterListView.as_view(), name='filter-home-list'),
-]
+    path('api/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
+    path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
 
-urlpatterns += [
-    path('user-profile/<int:pk>', UserUpdateAPIView.as_view(), name='user-profile-update'),
+    path('api/register/', RegisterView.as_view(), name='register'),
+
+    path('filter-homes/', HomeListAPIView.as_view(), name='filter-home-list'),
 ]

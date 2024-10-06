@@ -10,4 +10,4 @@ def sale():
 @pytest.fixture
 def home_category(sale):
     HomeCategory.objects.create(type='Yard' , sale_id=sale)
-
+#
