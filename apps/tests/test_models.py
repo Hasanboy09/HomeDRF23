@@ -1,8 +1,10 @@
-import pytest
 
-from apps.models import HomeCategory
+from apps.tests.test_fixture import *
 
 
 @pytest.mark.django_db
-def test_home_category_types(home_category):
-    assert home_category[0].type == HomeCategory.Type.DACHA
+def test_home_category_model(home_category_fixture):
+    home_category_fixture = HomeCategory.objects.get(type=HomeCategory.Type.DACHA)
+    assert home_category_fixture.type == HomeCategory.Type.DACHA
+    assert home_category_fixture.id == 2
+
