@@ -1,0 +1,80 @@
+WORKDIR app/   #container ichiga shu proyekt joylanadi
+build : .  -> docker fileni qidiradi
+restart : always  > container o`chb qolsa run qilaveradi
+
+
+    volumes:
+      - web-django:/usr/src/app
+      - web-static:/usr/src/app/static  -> static fayllar to`planadigan joy
+
+
+
+
+volume :
+ - pgdata:/var/lib/postgresql/data/  -. postgresda gi ma`lumotlar saqlanadigan joy
+
+
+
+
+
+DOCKER_COMPOSE.YAMl
+
+
+##version: '3.10'
+#
+#services:
+#
+#  postgres_service:
+#    restart: always
+#    image: postgres:alpine
+#    container_name: postgres_container
+#    environment:
+#      POSTGRES_PASSWORD: 1
+#    ports:
+#      - 5433:5432
+#    volumes:
+#      - pgdata:/var/lib/postgresql/data/
+#
+#  web:
+#    restart: always
+#    build: .
+#    container_name: home-drf23
+#    #
+#    #    links:
+#    #      - postgres:postgres
+#    #      - redis:redis
+#    volumes:
+#      - web-django:/usr/src/app
+#      - web-static:/usr/src/app/static
+#    env_file: .env
+#    ports:
+#      - "8000:8000"
+#    depends_on:
+#      - postgres_service
+#    environment:
+#      DEBUG: 'true'
+#    command: bash -c "python manage.py makemigrations && python manage.py migrate && python3 manage.py runserver 0.0.0.0:8000"
+#
+##  nginx:
+##    restart: always
+##    build: ./nginx/
+##    ports:
+##      - "80:80"
+##    volumes:
+##      - web-static:/www/static
+##    links:
+##      - web:web
+##
+##  redis:
+##    restart: always
+##    image: redis:latest
+##    ports:
+##      - "6379:6379"
+##    volumes:
+##      - redisdata:/data
+#
+#volumes:
+#  web-django:
+#  web-static:
+#  pgdata:
+##  redisdata:

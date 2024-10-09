@@ -25,9 +25,11 @@ multidict==6.1.0
 packaging==24.1
 pillow==10.4.0
 pluggy==1.5.0
+psycopg2-binary==2.9.9
 PyJWT==2.9.0
 pytest==8.3.3
 pytest-django==4.9.0
+python-dotenv==1.0.1
 PyYAML==6.0.2
 redis==5.0.8
 referencing==0.35.1
