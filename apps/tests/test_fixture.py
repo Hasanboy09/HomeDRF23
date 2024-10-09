@@ -8,15 +8,18 @@ from apps.models import HomeCategory, Home, HomeImages, HomeNeed, Advertisement,
 def region_fixture():
     return Region.objects.first()
 
+
 @pytest.fixture
 def district_fixture(region_fixture):
     return District.objects.filter(region=region_fixture).first()
+
 
 @pytest.fixture
 def home_category_fixture():
     HomeCategory.objects.create(type=HomeCategory.Type.YARD)
     HomeCategory.objects.create(type=HomeCategory.Type.DACHA)
     HomeCategory.objects.create(type=HomeCategory.Type.COTTAGE)
+
 
 @pytest.fixture
 def home_fixture(home_category_fixture, district_fixture):
@@ -28,6 +31,7 @@ def home_fixture(home_category_fixture, district_fixture):
         district=district_fixture,
         status=Home.Status.FOR_SALE
     )
+
 
 @pytest.fixture
 def home_images(home_fixture):

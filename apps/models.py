@@ -5,15 +5,6 @@ from django.db.models import EmailField, CharField, IntegerField, Model, TextCho
 from django.utils.text import slugify
 
 
-class Region(Model):
-    name = CharField(max_length=50)
-
-
-class District(Model):
-    name = CharField(max_length=50)
-    region = ForeignKey('apps.Region', CASCADE, related_name='districts')
-
-
 class CustomUserManager(BaseUserManager):
     def create_user(self, email, password=None, **extra_fields):
         if not email:
@@ -64,6 +55,16 @@ class BaseModelSlug(Model):
 
     def __str__(self):
         return self.name
+
+
+class Region(Model):
+    name = CharField(max_length=50)
+
+
+class District(Model):
+    name = CharField(max_length=50)
+    region = ForeignKey('apps.Region', CASCADE, related_name='districts')
+
 
 
 class HomeCategory(Model):
